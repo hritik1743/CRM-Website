@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OAuth Close</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const success = params.get("success") === "true";
+      console.log("OAuth popup loaded");
+      console.log("window.opener:", window.opener);
+      if (window.opener) {
+        window.opener.postMessage(
+          { success, message: success ? "Login successful" : "Login failed" },
+          "*"
+        );
+        window.close();
+      } else {
+        // Mobile/tab fallback: show message and a button to return to app
+        document.body.innerHTML = `
+          <h3>Login complete.</h3>
+          <p>Please return to the original tab. The page will update automatically.</p>
+          <button id="returnToApp" style="padding:8px 16px;margin-top:12px;font-size:1rem;">Return to App</button>
+        `;
+        document.getElementById('returnToApp').onclick = function() {
+          // Try to close the tab
+          window.close();
+          // If not possible, reload the opener (main app) if available
+          if (window.opener) {
+            window.opener.location.reload();
+          }
+          // If still not possible, redirect to the app's dashboard
+          setTimeout(function() {
+            window.location.href = "https://xeno-internship.netlify.app/dashboard";
+          }, 500);
+        };
+      }
+    </script>
+  </body>
+</html>
